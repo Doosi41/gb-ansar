@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import DesktopShell from '../src/components/DesktopShell';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -19,7 +20,9 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Stack screenOptions={{ headerShown: false }} />
+      <DesktopShell>
+        <Stack screenOptions={{ headerShown: false }} />
+      </DesktopShell>
     </GestureHandlerRootView>
   );
 }

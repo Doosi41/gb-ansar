@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useLayout } from '../src/hooks/use-layout';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -27,6 +28,7 @@ interface Product {
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { isDesktop } = useLayout();
   const [showInstallBanner, setShowInstallBanner] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -143,14 +145,14 @@ export default function HomeScreen() {
         {/* Две крупные квадратные плитки с иконкой во всю карточку */}
         <View style={styles.tilesRow}>
           <TouchableOpacity
-            style={[styles.bigTile, { backgroundColor: '#4F46E5' }]}
+            style={[styles.bigTile, isDesktop && styles.bigTileDesktop, { backgroundColor: '#4F46E5' }]}
             onPress={() => router.push('/camera')}
             activeOpacity={0.85}
             testID="menu-1"
           >
             {/* Иконка-подложка во всю плитку */}
             <View style={styles.tileIconLayer} pointerEvents="none">
-              <Ionicons name="camera" size={150} color="rgba(255,255,255,0.22)" />
+              <Ionicons name="camera" size={isDesktop ? 80 : 150} color="rgba(255,255,255,0.22)" />
             </View>
             <View style={styles.bigTileTextWrap}>
               <Text style={styles.bigTileTitle}>Поиск по фото</Text>
@@ -159,13 +161,13 @@ export default function HomeScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.bigTile, { backgroundColor: '#059669' }]}
+            style={[styles.bigTile, isDesktop && styles.bigTileDesktop, { backgroundColor: '#059669' }]}
             onPress={() => router.push('/barcode-scanner')}
             activeOpacity={0.85}
             testID="menu-2"
           >
             <View style={styles.tileIconLayer} pointerEvents="none">
-              <Ionicons name="barcode" size={150} color="rgba(255,255,255,0.22)" />
+              <Ionicons name="barcode" size={isDesktop ? 80 : 150} color="rgba(255,255,255,0.22)" />
             </View>
             <View style={styles.bigTileTextWrap}>
               <Text style={styles.bigTileTitle}>Сканер кода</Text>
@@ -278,7 +280,7 @@ export default function HomeScreen() {
               return (
                 <TouchableOpacity
                   key={p.id}
-                  style={styles.featuredCard}
+                  style={[styles.featuredCard, isDesktop && styles.featuredCardDesktop]}
                   activeOpacity={0.75}
                   onPress={() =>
                     router.push({ pathname: '/product-detail', params: { productId: p.id } })
@@ -381,6 +383,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  bigTileDesktop: { aspectRatio: undefined, height: 110, padding: 16 },
   bigTileTextWrap: {},
   bigTileTitle: {
     color: '#fff', fontSize: 15, fontWeight: '700',
@@ -468,6 +471,7 @@ const styles = StyleSheet.create({
     borderRadius: 12, marginBottom: 10, overflow: 'hidden',
     borderWidth: 1, borderColor: '#E5E7EB',
   },
+  featuredCardDesktop: { width: '23.5%' },
   featuredImage: {
     width: '100%', aspectRatio: 1, backgroundColor: '#F3F4F6',
   },

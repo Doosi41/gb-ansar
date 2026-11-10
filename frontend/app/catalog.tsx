@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { useRouter, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useLayout } from '../src/hooks/use-layout';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const PAGE_SIZE = 20;
@@ -58,6 +59,10 @@ function getPageNumbers(current: number, total: number): (number | 'dots')[] {
 
 export default function CatalogScreen() {
   const router = useRouter();
+  const { isDesktop, contentWidth } = useLayout();
+  const columns = isDesktop ? Math.max(3, Math.min(5, Math.floor(Math.min(contentWidth, 1200) / 230))) : 2;
+  // На десктопе колонки держим calc(), чтобы неполный последний ряд не растягивался
+  const cardWidth: any = isDesktop ? `calc((100% - ${(columns - 1) * 12}px) / ${columns})` : '48%';
   const params = useLocalSearchParams<{ q?: string }>();
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -169,7 +174,7 @@ export default function CatalogScreen() {
     const mainImage = item.images && item.images.length > 0 ? item.images[0] : null;
     return (
       <TouchableOpacity
-        style={styles.productCard}
+        style={[styles.productCard, { width: cardWidth }]}
         activeOpacity={0.7}
         onPress={() =>
           router.push({ pathname: '/product-detail', params: { productId: item.id } })
@@ -325,8 +330,9 @@ export default function CatalogScreen() {
           data={products}
           renderItem={renderProductCard}
           keyExtractor={(item) => item.id}
-          numColumns={2}
-          columnWrapperStyle={styles.row}
+          key={columns}
+          numColumns={columns}
+          columnWrapperStyle={isDesktop ? styles.rowDesktop : styles.row}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           refreshControl={
@@ -371,6 +377,7 @@ const styles = StyleSheet.create({
 
   listContent: { paddingHorizontal: 8, paddingBottom: 24 },
   row: { justifyContent: 'space-between', paddingHorizontal: 8 },
+  rowDesktop: { gap: 12, paddingHorizontal: 8 },
   productCard: {
     backgroundColor: 'white', borderRadius: 12, marginBottom: 12,
     width: '48%', overflow: 'hidden', position: 'relative',
