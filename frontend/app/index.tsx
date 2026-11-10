@@ -10,9 +10,9 @@ import {
   Linking,
   ScrollView,
   TextInput,
-  Image,
   ActivityIndicator,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useLayout } from '../src/hooks/use-layout';
@@ -292,7 +292,9 @@ export default function HomeScreen() {
                         uri: img.startsWith('http') ? img : `data:image/jpeg;base64,${img}`,
                       }}
                       style={styles.featuredImage}
-                      resizeMode="cover"
+                      contentFit="cover"
+                      cachePolicy="disk"
+                      transition={150}
                     />
                   ) : (
                     <View style={[styles.featuredImage, styles.featuredNoImage]}>

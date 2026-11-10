@@ -90,7 +90,7 @@ export default function PendingDetailScreen() {
         Alert.alert('Ошибка', 'Заявка не найдена');
         router.back();
       } finally {
-        Loading(false);
+        setLoading(false);
       }
     })();
   }, [id]);

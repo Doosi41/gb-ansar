@@ -16,6 +16,8 @@ from datetime import datetime, timezone, timedelta
 import re
 import aioboto3
 import base64
+import io
+from PIL import Image, ImageOps
 
 from bot import build_bot, notify_admins
 
@@ -156,6 +158,24 @@ async def call_openrouter(messages: list, retries=3) -> str:
     return ""
 
 
+MAX_IMAGE_SIDE = 1600
+
+
+def shrink_image(image_bytes: bytes) -> bytes:
+    """Фото с телефона весят несколько МБ — ужимаем до 1600 px по длинной стороне."""
+    try:
+        image = ImageOps.exif_transpose(Image.open(io.BytesIO(image_bytes)))
+        if max(image.size) <= MAX_IMAGE_SIDE and len(image_bytes) < 400_000:
+            return image_bytes
+        image.thumbnail((MAX_IMAGE_SIDE, MAX_IMAGE_SIDE))
+        out = io.BytesIO()
+        image.convert("RGB").save(out, "JPEG", quality=82, optimize=True)
+        return out.getvalue()
+    except Exception as e:
+        logger.warning(f"Не удалось сжать фото, сохраняю как есть: {e}")
+        return image_bytes
+
+
 async def upload_base64_to_s3(base64_data: str, folder: str = "products") -> str:
     if s3_client is None:
         logger.error("S3 credentials are not fully set!")
@@ -163,7 +183,7 @@ async def upload_base64_to_s3(base64_data: str, folder: str = "products") -> str
     try:
         if "," in base64_data:
             base64_data = base64_data.split(",")[1]
-        image_bytes = base64.b64decode(base64_data)
+        image_bytes = await asyncio.to_thread(shrink_image, base64.b64decode(base64_data))
         file_name = f"{folder}/{uuid.uuid4()}.jpg"
         await s3_client.put_object(
             Bucket=s3_bucket,

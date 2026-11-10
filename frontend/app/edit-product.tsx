@@ -238,7 +238,7 @@ export default function EditProductScreen() {
                     source={{ 
                       uri: img.startsWith('http') ? img : `data:image/jpeg;base64,${img}` 
                     }}
-                    style={styles.productImage}
+                    style={styles.imageItem}
                     resizeMode="cover"
                   />
                   <TouchableOpacity

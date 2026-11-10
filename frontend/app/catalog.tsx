@@ -7,7 +7,6 @@ import {
   SafeAreaView,
   StatusBar,
   FlatList,
-  Image,
   TextInput,
   ActivityIndicator,
   Alert,
@@ -15,6 +14,7 @@ import {
 } from 'react-native';
 import { useRouter, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { useLayout } from '../src/hooks/use-layout';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -189,7 +189,9 @@ export default function CatalogScreen() {
                 : `data:image/jpeg;base64,${mainImage}`,
             }}
             style={styles.productImage}
-            resizeMode="cover"
+            contentFit="cover"
+            cachePolicy="disk"
+            transition={150}
           />
         ) : (
           <View style={[styles.productImage, styles.noImage]}>
